@@ -1,0 +1,37 @@
+name: Build Moeda de 1 Real
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar projeto
+        run: |
+          mkdir -p build-src
+          unzip -o Moeda_de_1_Real_PlayStore_API36.zip -d build-src
+
+      - name: Instalar Gradle
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+          unzip -q gradle-8.11.1-bin.zip
+          echo "$PWD/gradle-8.11.1/bin" >> "$GITHUB_PATH"
+
+      - name: Compilar APK
+        run: |
+          cd build-src/Moeda_de_1_Real
+          gradle assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moeda-de-1-Real-APK
+          path: build-src/Moeda_de_1_Real/app/build/outputs/apk/debug/app-debug.apk
